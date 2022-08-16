@@ -1,0 +1,66 @@
+version: '3.8'
+services:
+  redis:
+    restart: unless-stopped
+    image: bsingh1904/request-bin-redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - redis-volume:/opt/redis/data
+    networks:
+      - request-bin-nw
+  commander:
+    restart: unless-stopped
+    image: bsingh1904/redis-commander:latest
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_LABEL=standalone
+    ports:
+      - 8081:8081
+    depends_on:
+      - redis
+    networks:
+      - request-bin-nw
+  services:
+    restart: unless-stopped
+    image: bsingh1904/request-bin-services:latest
+    ports:
+      - 9090:9090
+      - 9089:9089
+    depends_on:
+      - redis
+    environment:
+      - redis.mode=standalone
+      - redis.host=redis
+      - redis.port=6379
+      - redis.nodes=redis:6379
+    volumes:
+      - services-volume:/opt/request-bin
+    networks:
+      - request-bin-nw
+  app:
+    restart: unless-stopped
+    image: bsingh1904/request-bin-app:latest
+    depends_on:
+      - services
+    environment:
+      - NUXT_HOST=0.0.0.0
+      - apiBaseURL=http://localhost:9090/request-bin
+      - apiProxyURL=http://services:9090/request-bin
+    ports:
+      - 5000:5000
+    networks:
+      - request-bin-nw
+
+volumes:
+  services-volume:
+    driver: local
+  redis-volume:
+    driver: local
+
+networks:
+  request-bin-nw:
+    name: request-bin-nw
+    enable_ipv6: false
+    driver: bridge
