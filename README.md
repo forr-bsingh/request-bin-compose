@@ -1,10 +1,16 @@
-# REQUEST BIN
+# REQUEST-BIN
 
 - Commands:
-    - docker-compose stop
-    - docker-compose rm -f
-    - docker-compose pull   
-    - docker-compose up -d
+    - Stop running request-bin service:
+        ` docker compose stop `
+    - Pull images locally for request-bin to run:
+        ` docker compose pull `
+    - Starting request-bin in the backgroud/detached mode:
+        ` docker compose up -d `
+    - Clean up all resources used by request-bin:
+        ` docker compose down -v `
+    - Starting request-bin in attached mode/log view mode:
+        ` docker compose up `
     
     
  - Local Setup:
